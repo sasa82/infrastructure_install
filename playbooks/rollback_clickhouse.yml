@@ -1,0 +1,59 @@
+---
+- name: Rollback ClickHouse Installation
+  hosts: clickhouse
+  become: true
+  vars:
+    clickhouse_data_path: "/var/lib/clickhouse"
+    clickhouse_log_path: "/var/log/clickhouse-server"
+
+  tasks:
+    - name: Stop ClickHouse service
+      systemd:
+        name: clickhouse-server
+        state: stopped
+        enabled: no
+      ignore_errors: yes
+
+    - name: Remove ClickHouse packages
+      apt:
+        name:
+          - clickhouse-server
+          - clickhouse-client
+          - clickhouse-common-static
+        state: absent
+        purge: yes
+
+    - name: Remove ClickHouse repository
+      apt_repository:
+        repo: "deb https://packages.clickhouse.com/deb stable main"
+        state: absent
+        filename: clickhouse
+
+    - name: Remove ClickHouse GPG key
+      apt_key:
+        url: https://packages.clickhouse.com/rpm/lts/repodata/repomd.xml.key
+        state: absent
+      ignore_errors: yes
+
+    - name: Remove ClickHouse data directory
+      file:
+        path: "{{ clickhouse_data_path }}"
+        state: absent
+
+    - name: Remove ClickHouse log directory
+      file:
+        path: "{{ clickhouse_log_path }}"
+        state: absent
+
+    - name: Remove ClickHouse config directory
+      file:
+        path: /etc/clickhouse-server
+        state: absent
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Rollback complete
+      debug:
+        msg: "ClickHouse successfully removed from {{ inventory_hostname }}"
