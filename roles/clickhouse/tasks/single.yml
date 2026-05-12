@@ -1,0 +1,38 @@
+---
+- name: Build single node facts
+  set_fact:
+    clickhouse_nodes:
+      - host: "{{ ansible_host | default(inventory_hostname) }}"
+        shard: 1
+        replica: 1
+        keeper_server_id: 1
+    clickhouse_keeper_nodes:
+      - host: "{{ ansible_host | default(inventory_hostname) }}"
+        server_id: 1
+
+- name: Deploy ClickHouse single node config
+  template:
+    src: config.xml.j2
+    dest: /etc/clickhouse-server/config.xml
+    owner: clickhouse
+    group: clickhouse
+    mode: "0644"
+  notify: restart clickhouse
+
+- name: Deploy ClickHouse users config
+  template:
+    src: users.xml.j2
+    dest: /etc/clickhouse-server/users.xml
+    owner: clickhouse
+    group: clickhouse
+    mode: "0644"
+  notify: restart clickhouse
+
+- name: Deploy ClickHouse Keeper single node config
+  template:
+    src: keeper.xml.j2
+    dest: /etc/clickhouse-server/config.d/keeper.xml
+    owner: clickhouse
+    group: clickhouse
+    mode: "0644"
+  notify: restart clickhouse

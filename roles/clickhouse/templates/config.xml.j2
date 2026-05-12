@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<clickhouse>
+    <!-- Network -->
+    <listen_host>{{ clickhouse_listen_host }}</listen_host>
+    <http_port>{{ clickhouse_http_port }}</http_port>
+    <tcp_port>{{ clickhouse_tcp_port }}</tcp_port>
+    <interserver_http_port>{{ clickhouse_interserver_port }}</interserver_http_port>
+
+    <!-- Logging -->
+    <logger>
+        <level>{{ clickhouse_log_level }}</level>
+        <log>{{ clickhouse_log_path }}/clickhouse-server.log</log>
+        <errorlog>{{ clickhouse_log_path }}/clickhouse-server.err.log</errorlog>
+        <size>1000M</size>
+        <count>10</count>
+    </logger>
+
+    <!-- Storage -->
+    <path>{{ clickhouse_data_path }}/</path>
+    <tmp_path>{{ clickhouse_data_path }}/tmp/</tmp_path>
+
+    <!-- Resources -->
+    <max_connections>{{ clickhouse_max_connections }}</max_connections>
+
+    <!-- Cluster configuration (only in cluster mode) -->
+    {% if deployment_mode == "cluster" %}
+    <remote_servers>
+        <{{ clickhouse_cluster_name }}>
+            {% for shard_id in range(1, clickhouse_shards + 1) %}
+            <shard>
+                <internal_replication>true</internal_replication>
+                {% for node in clickhouse_nodes if node.shard == shard_id %}
+                <replica>
+                    <host>{{ node.host }}</host>
+                    <port>{{ clickhouse_tcp_port }}</port>
+                </replica>
+                {% endfor %}
+            </shard>
+            {% endfor %}
+        </{{ clickhouse_cluster_name }}>
+    </remote_servers>
+
+    <!-- Keeper configuration -->
+    <zookeeper>
+        {% for keeper in clickhouse_keeper_nodes %}
+        <node>
+            <host>{{ keeper.host }}</host>
+            <port>{{ clickhouse_keeper_port }}</port>
+        </node>
+        {% endfor %}
+    </zookeeper>
+
+    <macros>
+        <shard>{{ clickhouse_nodes | selectattr('host', 'equalto', ansible_host | default(inventory_hostname)) | map(attribute='shard') | first }}</shard>
+        <replica>{{ clickhouse_nodes | selectattr('host', 'equalto', ansible_host | default(inventory_hostname)) | map(attribute='replica') | first }}</replica>
+        <cluster>{{ clickhouse_cluster_name }}</cluster>
+    </macros>
+    {% endif %}
+
+</clickhouse>

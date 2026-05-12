@@ -1,0 +1,21 @@
+---
+galaxy_info:
+  role_name: clickhouse
+  author: your_github_username
+  description: "ClickHouse installation and configuration for bare metal Ubuntu servers"
+  license: MIT
+  min_ansible_version: "2.15"
+
+  platforms:
+    - name: Ubuntu
+      versions:
+        - jammy
+        - noble
+
+  galaxy_tags:
+    - clickhouse
+    - database
+    - analytics
+    - olap
+
+dependencies: []

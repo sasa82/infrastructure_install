@@ -1,0 +1,28 @@
+---
+- name: Enable and start ClickHouse service
+  systemd:
+    name: clickhouse-server
+    state: started
+    enabled: yes
+    daemon_reload: yes
+
+- name: Wait for ClickHouse to be ready
+  wait_for:
+    host: "{{ clickhouse_listen_host }}"
+    port: "{{ clickhouse_tcp_port }}"
+    delay: 5
+    timeout: 60
+    msg: "ClickHouse did not start in time"
+
+- name: Verify ClickHouse is running
+  command: clickhouse-client --query "SELECT 1"
+  register: clickhouse_check
+  changed_when: false
+  retries: 3
+  delay: 5
+  until: clickhouse_check.rc == 0
+
+- name: Print ClickHouse status
+  debug:
+    msg: "ClickHouse is running successfully on {{ inventory_hostname }}"
+  when: clickhouse_check.rc == 0

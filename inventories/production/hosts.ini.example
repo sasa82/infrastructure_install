@@ -1,0 +1,16 @@
+[clickhouse]
+10.0.0.1 ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/id_rsa
+10.0.0.2 ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/id_rsa
+
+[clickhouse_keeper]
+10.0.0.1 ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/id_rsa
+10.0.0.2 ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/id_rsa
+10.0.0.3 ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/id_rsa
+
+[kafka]
+10.0.0.4 ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/id_rsa
+10.0.0.5 ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/id_rsa
+10.0.0.6 ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/id_rsa
+
+[all:vars]
+ansible_python_interpreter=/usr/bin/python3

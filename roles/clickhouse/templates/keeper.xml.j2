@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<clickhouse>
+    <keeper_server>
+        <!-- Keeper server id must be unique for each node -->
+        <server_id>{{ clickhouse_keeper_nodes | selectattr('host', 'equalto', ansible_host | default(inventory_hostname)) | map(attribute='server_id') | first }}</server_id>
+
+        <listen_host>{{ clickhouse_listen_host }}</listen_host>
+        <tcp_port>{{ clickhouse_keeper_port }}</tcp_port>
+
+        <!-- Storage -->
+        <log_storage_path>{{ clickhouse_data_path }}/coordination/log</log_storage_path>
+        <snapshot_storage_path>{{ clickhouse_data_path }}/coordination/snapshots</snapshot_storage_path>
+
+        <coordination_settings>
+            <operation_timeout_ms>10000</operation_timeout_ms>
+            <session_timeout_ms>30000</session_timeout_ms>
+            <raft_logs_level>information</raft_logs_level>
+        </coordination_settings>
+
+        <!-- Raft cluster members -->
+        <raft_configuration>
+            {% for keeper in clickhouse_keeper_nodes %}
+            <server>
+                <id>{{ keeper.server_id }}</id>
+                <hostname>{{ keeper.host }}</hostname>
+                <port>{{ clickhouse_keeper_raft_port }}</port>
+            </server>
+            {% endfor %}
+        </raft_configuration>
+    </keeper_server>
+</clickhouse>

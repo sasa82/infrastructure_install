@@ -1,0 +1,51 @@
+---
+- name: Build cluster node facts dynamically from inventory
+  set_fact:
+    clickhouse_nodes: >-
+      {{ clickhouse_nodes + [{
+        'host': hostvars[item]['ansible_host'] | default(item),
+        'shard': loop_index // (groups['clickhouse'] | length // clickhouse_shards) + 1,
+        'replica': loop_index % (groups['clickhouse'] | length // clickhouse_shards) + 1,
+        'keeper_server_id': loop_index + 1
+      }] }}
+  loop: "{{ groups['clickhouse'] }}"
+  loop_control:
+    index_var: loop_index
+
+- name: Build keeper node facts dynamically from inventory
+  set_fact:
+    clickhouse_keeper_nodes: >-
+      {{ clickhouse_keeper_nodes + [{
+        'host': hostvars[item]['ansible_host'] | default(item),
+        'server_id': loop_index + 1
+      }] }}
+  loop: "{{ groups['clickhouse_keeper'] }}"
+  loop_control:
+    index_var: loop_index
+
+- name: Deploy ClickHouse cluster config
+  template:
+    src: config.xml.j2
+    dest: /etc/clickhouse-server/config.xml
+    owner: clickhouse
+    group: clickhouse
+    mode: "0644"
+  notify: restart clickhouse
+
+- name: Deploy ClickHouse users config
+  template:
+    src: users.xml.j2
+    dest: /etc/clickhouse-server/users.xml
+    owner: clickhouse
+    group: clickhouse
+    mode: "0644"
+  notify: restart clickhouse
+
+- name: Deploy ClickHouse Keeper cluster config
+  template:
+    src: keeper.xml.j2
+    dest: /etc/clickhouse-server/config.d/keeper.xml
+    owner: clickhouse
+    group: clickhouse
+    mode: "0644"
+  notify: restart clickhouse

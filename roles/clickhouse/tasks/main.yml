@@ -1,0 +1,14 @@
+---
+- name: Install ClickHouse
+  include_tasks: install.yml
+
+- name: Configure ClickHouse single node
+  include_tasks: single.yml
+  when: deployment_mode == "single"
+
+- name: Configure ClickHouse cluster
+  include_tasks: cluster.yml
+  when: deployment_mode == "cluster"
+
+- name: Configure ClickHouse
+  include_tasks: configure.yml

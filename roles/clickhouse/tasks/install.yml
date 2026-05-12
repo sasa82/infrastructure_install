@@ -1,0 +1,46 @@
+---
+- name: Install dependencies
+  apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg
+    state: present
+    update_cache: yes
+
+- name: Add ClickHouse GPG key
+  apt_key:
+    url: https://packages.clickhouse.com/rpm/lts/repodata/repomd.xml.key
+    state: present
+
+- name: Add ClickHouse repository
+  apt_repository:
+    repo: "deb https://packages.clickhouse.com/deb stable main"
+    state: present
+    filename: clickhouse
+
+- name: Install ClickHouse packages
+  apt:
+    name:
+      - clickhouse-server={{ clickhouse_version }}
+      - clickhouse-client={{ clickhouse_version }}
+      - clickhouse-common-static={{ clickhouse_version }}
+    state: present
+    update_cache: yes
+
+- name: Ensure ClickHouse data directory exists
+  file:
+    path: "{{ clickhouse_data_path }}"
+    state: directory
+    owner: clickhouse
+    group: clickhouse
+    mode: "0755"
+
+- name: Ensure ClickHouse log directory exists
+  file:
+    path: "{{ clickhouse_log_path }}"
+    state: directory
+    owner: clickhouse
+    group: clickhouse
+    mode: "0755"

@@ -1,0 +1,11 @@
+---
+- name: restart clickhouse
+  systemd:
+    name: clickhouse-server
+    state: restarted
+    daemon_reload: yes
+
+- name: reload clickhouse
+  systemd:
+    name: clickhouse-server
+    state: reloaded

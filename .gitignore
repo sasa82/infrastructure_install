@@ -1,0 +1,27 @@
+## Ansible
+*.retry
+.vault_pass
+vault.yml
+
+## Inventory - keep examples, ignore real ones
+inventories/*/hosts.ini
+!inventories/*/hosts.ini.example
+
+## SSH keys
+*.pem
+*.key
+id_rsa*
+
+## Environment files
+.env
+!.env.example
+
+## OS
+.DS_Store
+*.swp
+*.swo
+
+## Python
+__pycache__/
+*.pyc
+.venv/

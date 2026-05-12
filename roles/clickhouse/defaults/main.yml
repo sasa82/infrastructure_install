@@ -1,0 +1,48 @@
+---
+## ─── Deployment Mode ───────────────────────────────────────────
+## Options:
+##   single  → 1 node, no HA, for testing
+##   cluster → full HA production setup
+deployment_mode: "single"
+
+## ─── Version ───────────────────────────────────────────────────
+clickhouse_version: "24.1"
+
+## ─── Cluster Name ──────────────────────────────────────────────
+clickhouse_cluster_name: "my_cluster"
+
+## ─── Shards & Replicas ─────────────────────────────────────────
+clickhouse_shards: 1
+clickhouse_replicas: 1
+
+## ─── Network ───────────────────────────────────────────────────
+clickhouse_listen_host: "0.0.0.0"
+clickhouse_http_port: 8123
+clickhouse_tcp_port: 9000
+clickhouse_interserver_port: 9009
+
+## ─── Storage ───────────────────────────────────────────────────
+clickhouse_data_path: "/var/lib/clickhouse"
+clickhouse_log_path: "/var/log/clickhouse-server"
+clickhouse_log_level: "information"
+
+## ─── Resources ─────────────────────────────────────────────────
+clickhouse_max_memory_usage: "10000000000"
+clickhouse_max_connections: 4096
+
+## ─── Users ─────────────────────────────────────────────────────
+clickhouse_admin_user: "admin"
+clickhouse_admin_password: "changeme"
+clickhouse_default_password: ""
+
+## ─── Keeper Settings ───────────────────────────────────────────
+clickhouse_keeper_port: 9181
+clickhouse_keeper_raft_port: 9234
+
+## ─── Node Lists ────────────────────────────────────────────────
+## Derived dynamically from hosts.ini
+## DO NOT set IPs here!
+## Edit inventories/single/hosts.ini
+## Edit inventories/production/hosts.ini
+clickhouse_nodes: []
+clickhouse_keeper_nodes: []
