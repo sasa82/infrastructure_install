@@ -10,7 +10,12 @@
       - host: "{{ ansible_host | default(inventory_hostname) }}"
         server_id: 1
 
-- name: Deploy ClickHouse single node config
+- name: Remove keeper config in single mode
+  file:
+    path: /etc/clickhouse-server/config.d/keeper.xml
+    state: absent
+
+- name: Deploy ClickHouse main config
   template:
     src: config.xml.j2
     dest: /etc/clickhouse-server/config.xml
@@ -19,20 +24,11 @@
     mode: "0644"
   notify: restart clickhouse
 
-- name: Deploy ClickHouse users config
+- name: Deploy ClickHouse users config to users.d
   template:
     src: users.xml.j2
-    dest: /etc/clickhouse-server/users.xml
+    dest: /etc/clickhouse-server/users.d/users.xml
     owner: clickhouse
     group: clickhouse
-    mode: "0644"
-  notify: restart clickhouse
-
-- name: Deploy ClickHouse Keeper single node config
-  template:
-    src: keeper.xml.j2
-    dest: /etc/clickhouse-server/config.d/keeper.xml
-    owner: clickhouse
-    group: clickhouse
-    mode: "0644"
+    mode: "0640"
   notify: restart clickhouse

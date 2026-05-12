@@ -1,7 +1,18 @@
 <?xml version="1.0"?>
 <clickhouse>
+    <profiles>
+        <default>
+            <max_memory_usage>{{ clickhouse_max_memory_usage }}</max_memory_usage>
+            <use_uncompressed_cache>0</use_uncompressed_cache>
+            <load_balancing>random</load_balancing>
+        </default>
+
+        <readonly>
+            <readonly>1</readonly>
+        </readonly>
+    </profiles>
+
     <users>
-        <!-- Default user -->
         <default>
             <password>{{ clickhouse_default_password }}</password>
             <networks>
@@ -13,7 +24,6 @@
             <access_management>0</access_management>
         </default>
 
-        <!-- Admin user -->
         <{{ clickhouse_admin_user }}>
             <password>{{ clickhouse_admin_password }}</password>
             <networks>
@@ -24,14 +34,6 @@
             <access_management>1</access_management>
         </{{ clickhouse_admin_user }}>
     </users>
-
-    <profiles>
-        <default>
-            <max_memory_usage>{{ clickhouse_max_memory_usage }}</max_memory_usage>
-            <use_uncompressed_cache>0</use_uncompressed_cache>
-            <load_balancing>random</load_balancing>
-        </default>
-    </profiles>
 
     <quotas>
         <default>

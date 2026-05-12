@@ -6,7 +6,7 @@
 deployment_mode: "single"
 
 ## ─── Version ───────────────────────────────────────────────────
-clickhouse_version: "24.1"
+clickhouse_version: "26.4.2.10"
 
 ## ─── Cluster Name ──────────────────────────────────────────────
 clickhouse_cluster_name: "my_cluster"

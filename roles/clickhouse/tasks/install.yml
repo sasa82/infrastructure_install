@@ -23,11 +23,16 @@
 - name: Install ClickHouse packages
   apt:
     name:
-      - clickhouse-server={{ clickhouse_version }}
-      - clickhouse-client={{ clickhouse_version }}
-      - clickhouse-common-static={{ clickhouse_version }}
+      - "clickhouse-server={{ clickhouse_version }}"
+      - "clickhouse-client={{ clickhouse_version }}"
+      - "clickhouse-common-static={{ clickhouse_version }}"
     state: present
     update_cache: yes
+
+- name: Remove default users.xml to avoid profile conflicts
+  file:
+    path: /etc/clickhouse-server/users.xml
+    state: absent
 
 - name: Ensure ClickHouse data directory exists
   file:

@@ -6,6 +6,9 @@
     <tcp_port>{{ clickhouse_tcp_port }}</tcp_port>
     <interserver_http_port>{{ clickhouse_interserver_port }}</interserver_http_port>
 
+    <!-- Users config path -->
+    <users_config>users.d/users.xml</users_config>
+
     <!-- Logging -->
     <logger>
         <level>{{ clickhouse_log_level }}</level>
@@ -40,7 +43,6 @@
         </{{ clickhouse_cluster_name }}>
     </remote_servers>
 
-    <!-- Keeper configuration -->
     <zookeeper>
         {% for keeper in clickhouse_keeper_nodes %}
         <node>
