@@ -32,13 +32,13 @@
     mode: "0644"
   notify: restart clickhouse
 
-- name: Deploy ClickHouse users config
+- name: Deploy ClickHouse users config to users.d
   template:
     src: users.xml.j2
-    dest: /etc/clickhouse-server/users.xml
+    dest: /etc/clickhouse-server/users.d/users.xml
     owner: clickhouse
     group: clickhouse
-    mode: "0644"
+    mode: "0640"
   notify: restart clickhouse
 
 - name: Deploy ClickHouse Keeper cluster config
