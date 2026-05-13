@@ -21,9 +21,13 @@
         path: /etc/systemd/system/kafka.service
         state: absent
 
-    - name: Reload systemd
+    - name: Reload systemd daemon
       systemd:
         daemon_reload: yes
+
+    - name: Reset failed service state
+      command: systemctl reset-failed kafka.service
+      ignore_errors: yes
 
     - name: Remove Kafka installation
       file:

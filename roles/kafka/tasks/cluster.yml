@@ -1,16 +1,19 @@
 ---
-- name: Build cluster node facts dynamically from inventory
+- name: Set node specific facts
   set_fact:
     kafka_node_id: "{{ groups['kafka'].index(inventory_hostname) + 1 }}"
-    kafka_node_host: "{{ ansible_host | default(inventory_hostname) }}"
+    kafka_node_host: "{{ inventory_hostname }}"
     kafka_node_roles: "broker,controller"
+
+- name: Build quorum voters string
+  set_fact:
     kafka_quorum_voters: >-
-      {{ groups['kafka'] | map('extract', hostvars, ['ansible_host']) 
-      | default(groups['kafka']) 
-      | enumerate(start=1) 
-      | map('join', '@') 
-      | map('regex_replace', '$', ':' + kafka_controller_port | string) 
-      | join(',') }}
+      {% set voters = [] %}
+      {% for host in groups['kafka'] %}
+      {% set id = loop.index %}
+      {% set _ = voters.append(id | string + '@' + host + ':' + kafka_controller_port | string) %}
+      {% endfor %}
+      {{ voters | join(',') }}
 
 - name: Generate KRaft cluster ID on first node
   command: /opt/kafka/bin/kafka-storage.sh random-uuid
