@@ -1,0 +1,34 @@
+---
+- name: Build single node facts
+  set_fact:
+    kafka_node_id: 1
+    kafka_node_host: "{{ ansible_host | default(inventory_hostname) }}"
+    kafka_node_roles: "broker,controller"
+    kafka_quorum_voters: "1@{{ ansible_host | default(inventory_hostname) }}:{{ kafka_controller_port }}"
+
+- name: Generate KRaft cluster ID
+  command: /opt/kafka/bin/kafka-storage.sh random-uuid
+  register: kafka_uuid
+  changed_when: false
+
+- name: Set cluster ID fact
+  set_fact:
+    kafka_cluster_id: "{{ kafka_uuid.stdout }}"
+
+- name: Deploy Kafka server config
+  template:
+    src: server.properties.j2
+    dest: /opt/kafka/config/server.properties
+    owner: kafka
+    group: kafka
+    mode: "0644"
+  notify: restart kafka
+
+- name: Format Kafka storage
+  command: >
+    /opt/kafka/bin/kafka-storage.sh format
+    -t {{ kafka_cluster_id }}
+    -c /opt/kafka/config/server.properties
+  args:
+    creates: "{{ kafka_data_path }}/meta.properties"
+  become_user: kafka

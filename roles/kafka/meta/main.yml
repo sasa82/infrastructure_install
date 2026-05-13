@@ -1,0 +1,21 @@
+---
+galaxy_info:
+  role_name: kafka
+  author: your_github_username
+  description: "Apache Kafka installation and configuration for bare metal Ubuntu servers using KRaft mode"
+  license: MIT
+  min_ansible_version: "2.15"
+
+  platforms:
+    - name: Ubuntu
+      versions:
+        - jammy
+        - noble
+
+  galaxy_tags:
+    - kafka
+    - messaging
+    - streaming
+    - kraft
+
+dependencies: []

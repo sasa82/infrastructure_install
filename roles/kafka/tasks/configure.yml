@@ -1,0 +1,30 @@
+---
+- name: Enable and start Kafka service
+  systemd:
+    name: kafka
+    state: started
+    enabled: yes
+    daemon_reload: yes
+
+- name: Wait for Kafka to be ready
+  wait_for:
+    host: "{{ ansible_host | default(inventory_hostname) }}"
+    port: "{{ kafka_port }}"
+    delay: 5
+    timeout: 60
+    msg: "Kafka did not start in time"
+
+- name: Verify Kafka is running
+  command: >
+    /opt/kafka/bin/kafka-broker-api-versions.sh
+    --bootstrap-server {{ ansible_host | default(inventory_hostname) }}:{{ kafka_port }}
+  register: kafka_check
+  changed_when: false
+  retries: 3
+  delay: 5
+  until: kafka_check.rc == 0
+
+- name: Print Kafka status
+  debug:
+    msg: "Kafka is running successfully on {{ inventory_hostname }}"
+  when: kafka_check.rc == 0

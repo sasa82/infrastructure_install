@@ -1,0 +1,11 @@
+---
+- name: restart kafka
+  systemd:
+    name: kafka
+    state: restarted
+    daemon_reload: yes
+
+- name: reload kafka
+  systemd:
+    name: kafka
+    state: reloaded

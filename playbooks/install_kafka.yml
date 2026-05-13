@@ -1,0 +1,6 @@
+---
+- name: Install Kafka
+  hosts: kafka
+  become: true
+  roles:
+    - kafka

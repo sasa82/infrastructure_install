@@ -1,0 +1,41 @@
+---
+## ─── Deployment Mode ───────────────────────────────────────────
+## Options:
+##   single  → 1 broker, no HA, for testing
+##   cluster → 3 brokers, KRaft mode, production
+deployment_mode: "single"
+
+## ─── Version ───────────────────────────────────────────────────
+kafka_version: "4.2.0"
+kafka_scala_version: "2.13"
+java_version: "17"
+
+## ─── Network ───────────────────────────────────────────────────
+kafka_listen_host: "0.0.0.0"
+kafka_port: 9092
+kafka_controller_port: 9093
+
+## ─── Storage ───────────────────────────────────────────────────
+kafka_data_path: "/var/lib/kafka"
+kafka_log_path: "/var/log/kafka"
+kafka_log_retention_hours: 168
+kafka_log_segment_bytes: 1073741824
+
+## ─── Resources ─────────────────────────────────────────────────
+kafka_heap_size: "1G"
+
+## ─── Topic Defaults ────────────────────────────────────────────
+kafka_num_partitions: 1
+kafka_replication_factor: 1
+kafka_offsets_topic_replication_factor: 1
+kafka_transaction_state_log_replication_factor: 1
+kafka_transaction_state_log_min_isr: 1
+
+## ─── KRaft Settings ────────────────────────────────────────────
+kafka_cluster_id: ""
+
+## ─── Node Lists ────────────────────────────────────────────────
+## Derived dynamically from hosts.ini
+## DO NOT set IPs here!
+## Edit inventories/*/hosts.ini instead!
+kafka_nodes: []

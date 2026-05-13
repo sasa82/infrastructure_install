@@ -1,0 +1,26 @@
+## ─── KRaft Mode ────────────────────────────────────────────────
+process.roles={{ kafka_node_roles }}
+node.id={{ kafka_node_id }}
+controller.quorum.voters={{ kafka_quorum_voters }}
+
+## ─── Network ───────────────────────────────────────────────────
+listeners=PLAINTEXT://{{ kafka_listen_host }}:{{ kafka_port }},CONTROLLER://{{ kafka_listen_host }}:{{ kafka_controller_port }}
+advertised.listeners=PLAINTEXT://{{ kafka_node_host }}:{{ kafka_port }}
+listener.security.protocol.map=PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+inter.broker.listener.name=PLAINTEXT
+controller.listener.names=CONTROLLER
+
+## ─── Storage ───────────────────────────────────────────────────
+log.dirs={{ kafka_data_path }}
+
+## ─── Topic Defaults ────────────────────────────────────────────
+num.partitions={{ kafka_num_partitions }}
+default.replication.factor={{ kafka_replication_factor }}
+offsets.topic.replication.factor={{ kafka_offsets_topic_replication_factor }}
+transaction.state.log.replication.factor={{ kafka_transaction_state_log_replication_factor }}
+transaction.state.log.min.isr={{ kafka_transaction_state_log_min_isr }}
+
+## ─── Log Retention ─────────────────────────────────────────────
+log.retention.hours={{ kafka_log_retention_hours }}
+log.segment.bytes={{ kafka_log_segment_bytes }}
+log.retention.check.interval.ms=300000

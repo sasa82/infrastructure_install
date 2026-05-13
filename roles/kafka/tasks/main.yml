@@ -1,0 +1,14 @@
+---
+- name: Install Kafka
+  include_tasks: install.yml
+
+- name: Configure Kafka single node
+  include_tasks: single.yml
+  when: deployment_mode == "single"
+
+- name: Configure Kafka cluster
+  include_tasks: cluster.yml
+  when: deployment_mode == "cluster"
+
+- name: Start and verify Kafka
+  include_tasks: configure.yml

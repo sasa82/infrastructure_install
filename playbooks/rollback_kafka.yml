@@ -1,0 +1,61 @@
+---
+- name: Rollback Kafka Installation
+  hosts: kafka
+  become: true
+  vars:
+    kafka_data_path: "/var/lib/kafka"
+    kafka_log_path: "/var/log/kafka"
+    kafka_version: "4.2.0"
+    kafka_scala_version: "2.13"
+
+  tasks:
+    - name: Stop Kafka service
+      systemd:
+        name: kafka
+        state: stopped
+        enabled: no
+      ignore_errors: yes
+
+    - name: Remove Kafka systemd service
+      file:
+        path: /etc/systemd/system/kafka.service
+        state: absent
+
+    - name: Reload systemd
+      systemd:
+        daemon_reload: yes
+
+    - name: Remove Kafka installation
+      file:
+        path: /opt/kafka
+        state: absent
+
+    - name: Remove Kafka data directory
+      file:
+        path: "{{ kafka_data_path }}"
+        state: absent
+
+    - name: Remove Kafka log directory
+      file:
+        path: "{{ kafka_log_path }}"
+        state: absent
+
+    - name: Remove Kafka user
+      user:
+        name: kafka
+        state: absent
+
+    - name: Remove Kafka group
+      group:
+        name: kafka
+        state: absent
+
+    - name: Remove downloaded archive
+      file:
+        path: "/tmp/kafka_{{ kafka_scala_version }}-{{ kafka_version }}.tgz"
+        state: absent
+      ignore_errors: yes
+
+    - name: Rollback complete
+      debug:
+        msg: "Kafka successfully removed from {{ inventory_hostname }}"
