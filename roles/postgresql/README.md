@@ -1,38 +1,135 @@
-Role Name
-=========
+## PostgreSQL Role
 
-A brief description of the role goes here.
+Ansible role for PostgreSQL installation and configuration on bare metal Ubuntu servers. Single node deployment with secure network access control.
 
-Requirements
-------------
+---
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+### Architecture
 
-Role Variables
---------------
+```
+Single Server
+└── PostgreSQL Server
+    └── Listening on all interfaces (0.0.0.0)
+    └── Access controlled by pg_hba.conf
+    └── Password authentication (scram-sha-256)
+    └── Private networks allowed by default
+```
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+---
 
-Dependencies
-------------
+### Inventory Setup
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+#### Production (inventories/production/hosts.ini)
+```ini
+[postgresql]
+10.0.0.1 ansible_user=root ansible_ssh_private_key_file=~/.ssh/id_ed25519
 
-Example Playbook
-----------------
+[all:vars]
+ansible_python_interpreter=/usr/bin/python3
+```
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+---
 
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+### How Network Access Works
 
-License
--------
+```
+Two layers of security:
 
-BSD
+Layer 1: postgresql.conf
+└── listen_addresses = *
+    accepts connections on all interfaces
 
-Author Information
-------------------
+Layer 2: pg_hba.conf
+└── controls which networks can authenticate
+    private networks allowed by default
+    configurable via postgresql_allowed_networks
+```
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+---
+
+### Configuration Variables
+
+All variables have sensible defaults in `defaults/main.yml`.
+Only override what you need in `inventories/*/group_vars/all.yml`.
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `postgresql_version` | `16` | PostgreSQL version |
+| `postgresql_listen_addresses` | `*` | Listen addresses |
+| `postgresql_port` | `5432` | PostgreSQL port |
+| `postgresql_allowed_networks` | private ranges | Networks allowed to connect |
+| `postgresql_max_connections` | `100` | Max connections |
+| `postgresql_shared_buffers` | `256MB` | Shared buffers |
+| `postgresql_effective_cache_size` | `1GB` | Effective cache size |
+| `postgresql_work_mem` | `4MB` | Work memory |
+| `postgresql_maintenance_work_mem` | `64MB` | Maintenance work memory |
+| `postgresql_admin_user` | `postgres` | Admin username |
+| `postgresql_admin_password` | `changeme` | Admin password |
+| `postgresql_databases` | `[]` | Extra databases to create |
+| `postgresql_users` | `[]` | Extra users to create |
+
+---
+
+### Creating Extra Databases And Users
+
+Override in `inventories/production/group_vars/all.yml`:
+
+```yaml
+postgresql_databases:
+  - myapp_db
+  - analytics_db
+
+postgresql_users:
+  - name: myapp_user
+    password: securepassword
+  - name: analytics_user
+    password: securepassword
+```
+
+---
+
+### Allowed Networks
+
+Override in `inventories/production/group_vars/all.yml`:
+
+```yaml
+postgresql_allowed_networks:
+  - "127.0.0.1/32"
+  - "10.0.0.0/8"
+  - "192.168.0.0/16"
+```
+
+---
+
+### Install & Rollback
+
+```bash
+## Install
+ansible-playbook playbooks/install_postgresql.yml \
+  -i inventories/production/hosts.ini
+
+## Rollback
+ansible-playbook playbooks/rollback_postgresql.yml \
+  -i inventories/production/hosts.ini
+```
+
+---
+
+### Verify Installation
+
+```bash
+## Check service
+systemctl status postgresql@16-main
+
+## Connect as postgres user
+sudo -u postgres psql
+
+## Check version
+sudo -u postgres psql -c "SELECT version()"
+
+## Check listening address
+sudo -u postgres psql -c "SHOW listen_addresses"
+
+## List databases
+sudo -u postgres psql -c "\l"
+```
