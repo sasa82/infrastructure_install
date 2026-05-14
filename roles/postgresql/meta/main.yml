@@ -1,0 +1,21 @@
+---
+galaxy_info:
+  role_name: postgresql
+  author: your_github_username
+  description: "PostgreSQL installation and configuration for bare metal Ubuntu servers"
+  license: MIT
+  min_ansible_version: "2.15"
+
+  platforms:
+    - name: Ubuntu
+      versions:
+        - jammy
+        - noble
+
+  galaxy_tags:
+    - postgresql
+    - database
+    - sql
+    - relational
+
+dependencies: []

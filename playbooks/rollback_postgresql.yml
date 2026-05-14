@@ -1,0 +1,86 @@
+---
+- name: Rollback PostgreSQL Installation
+  hosts: postgresql
+  become: true
+  vars:
+    postgresql_version: "16"
+    postgresql_log_path: "/var/log/postgresql"
+
+  tasks:
+    - name: Stop PostgreSQL service
+      systemd:
+        name: "postgresql@{{ postgresql_version }}-main"
+        state: stopped
+        enabled: no
+      ignore_errors: yes
+
+    - name: Drop PostgreSQL cluster
+      command: "pg_dropcluster --stop {{ postgresql_version }} main"
+      ignore_errors: yes
+
+    - name: Remove PostgreSQL data directory
+      file:
+        path: "/var/lib/postgresql/{{ postgresql_version }}"
+        state: absent
+
+    - name: Remove PostgreSQL packages
+      apt:
+        name:
+          - "postgresql-{{ postgresql_version }}"
+          - "postgresql-client-{{ postgresql_version }}"
+          - "postgresql-contrib-{{ postgresql_version }}"
+          - postgresql-common
+          - postgresql-client-common
+        state: absent
+        purge: yes
+
+    - name: Remove PostgreSQL repository
+      apt_repository:
+        repo: "deb https://apt.postgresql.org/pub/repos/apt {{ ansible_distribution_release }}-pgdg main"
+        state: absent
+        filename: postgresql
+
+    - name: Remove PostgreSQL GPG key
+      apt_key:
+        url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+        state: absent
+      ignore_errors: yes
+
+    - name: Remove PostgreSQL config directory
+      file:
+        path: "/etc/postgresql"
+        state: absent
+
+    - name: Remove PostgreSQL log directory
+      file:
+        path: "{{ postgresql_log_path }}"
+        state: absent
+
+    - name: Remove remaining data directory
+      file:
+        path: "/var/lib/postgresql"
+        state: absent
+
+    - name: Fix dpkg if needed
+      command: dpkg --configure -a
+      ignore_errors: yes
+
+    - name: Autoremove unused packages
+      apt:
+        autoremove: yes
+
+    - name: Reload systemd daemon
+      systemd:
+        daemon_reload: yes
+
+    - name: Reset failed service state
+      command: "systemctl reset-failed postgresql@{{ postgresql_version }}-main.service"
+      ignore_errors: yes
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Rollback complete
+      debug:
+        msg: "PostgreSQL successfully removed from {{ inventory_hostname }}"

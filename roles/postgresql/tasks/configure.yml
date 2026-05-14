@@ -1,0 +1,67 @@
+---
+- name: Deploy PostgreSQL main config
+  template:
+    src: postgresql.conf.j2
+    dest: "/etc/postgresql/{{ postgresql_version }}/main/postgresql.conf"
+    owner: postgres
+    group: postgres
+    mode: "0644"
+  notify: restart postgresql
+
+- name: Deploy PostgreSQL HBA config
+  template:
+    src: pg_hba.conf.j2
+    dest: "/etc/postgresql/{{ postgresql_version }}/main/pg_hba.conf"
+    owner: postgres
+    group: postgres
+    mode: "0640"
+  notify: restart postgresql
+
+- name: Enable and start PostgreSQL service
+  systemd:
+    name: "postgresql@{{ postgresql_version }}-main"
+    state: started
+    enabled: yes
+    daemon_reload: yes
+
+- name: Wait for PostgreSQL to be ready
+  wait_for:
+    port: "{{ postgresql_port }}"
+    delay: 5
+    timeout: 60
+    msg: "PostgreSQL did not start in time"
+
+- name: Set PostgreSQL admin password
+  become_user: postgres
+  postgresql_user:
+    name: "{{ postgresql_admin_user }}"
+    password: "{{ postgresql_admin_password }}"
+    state: present
+
+- name: Create additional databases
+  become_user: postgres
+  postgresql_db:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ postgresql_databases }}"
+  when: postgresql_databases | length > 0
+
+- name: Create additional users
+  become_user: postgres
+  postgresql_user:
+    name: "{{ item.name }}"
+    password: "{{ item.password }}"
+    state: present
+  loop: "{{ postgresql_users }}"
+  when: postgresql_users | length > 0
+
+- name: Verify PostgreSQL is running
+  become_user: postgres
+  command: psql -c "SELECT version()" postgres
+  register: postgresql_check
+  changed_when: false
+
+- name: Print PostgreSQL status
+  debug:
+    msg: "PostgreSQL is running successfully on {{ inventory_hostname }}"
+  when: postgresql_check.rc == 0

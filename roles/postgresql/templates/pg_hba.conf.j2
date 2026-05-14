@@ -1,0 +1,18 @@
+## ─── PostgreSQL Client Authentication Configuration ────────────
+## TYPE  DATABASE    USER        ADDRESS           METHOD
+
+## Local connections
+local   all         postgres                      peer
+local   all         all                           peer
+
+## IPv4 local connections
+host    all         all         127.0.0.1/32      scram-sha-256
+
+## IPv6 local connections
+host    all         all         ::1/128           scram-sha-256
+
+## Allowed network connections
+## Configured via postgresql_allowed_networks in defaults/main.yml
+{% for network in postgresql_allowed_networks %}
+host    all         all         {{ network }}     scram-sha-256
+{% endfor %}

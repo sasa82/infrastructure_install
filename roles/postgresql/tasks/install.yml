@@ -1,0 +1,31 @@
+---
+- name: Install dependencies
+  apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg
+      - python3-psycopg2
+    state: present
+    update_cache: yes
+
+- name: Add PostgreSQL GPG key
+  apt_key:
+    url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+    state: present
+
+- name: Add PostgreSQL repository
+  apt_repository:
+    repo: "deb https://apt.postgresql.org/pub/repos/apt {{ ansible_distribution_release }}-pgdg main"
+    state: present
+    filename: postgresql
+
+- name: Install PostgreSQL packages
+  apt:
+    name:
+      - "postgresql-{{ postgresql_version }}"
+      - "postgresql-client-{{ postgresql_version }}"
+      - "postgresql-contrib-{{ postgresql_version }}"
+    state: present
+    update_cache: yes

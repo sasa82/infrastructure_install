@@ -1,0 +1,37 @@
+---
+## ─── Version ───────────────────────────────────────────────────
+postgresql_version: "16"
+
+## ─── Network ───────────────────────────────────────────────────
+postgresql_listen_addresses: "*"
+postgresql_port: 5432
+
+## ─── Allowed Networks ──────────────────────────────────────────
+## Controls which networks can authenticate to PostgreSQL
+## Acts as additional security layer on top of firewall
+postgresql_allowed_networks:
+  - "127.0.0.1/32"
+  - "10.0.0.0/8"
+  - "172.16.0.0/12"
+  - "192.168.0.0/16"
+
+## ─── Storage ───────────────────────────────────────────────────
+postgresql_data_path: "/var/lib/postgresql"
+postgresql_log_path: "/var/log/postgresql"
+
+## ─── Resources ─────────────────────────────────────────────────
+postgresql_max_connections: 100
+postgresql_shared_buffers: "256MB"
+postgresql_effective_cache_size: "1GB"
+postgresql_work_mem: "4MB"
+postgresql_maintenance_work_mem: "64MB"
+
+## ─── Users ─────────────────────────────────────────────────────
+postgresql_admin_user: "postgres"
+postgresql_admin_password: "changeme"
+
+## ─── Databases ─────────────────────────────────────────────────
+postgresql_databases: []
+
+## ─── Extra Users ───────────────────────────────────────────────
+postgresql_users: []
