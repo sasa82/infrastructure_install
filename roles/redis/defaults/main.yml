@@ -1,0 +1,28 @@
+---
+## ─── Version ───────────────────────────────────────────────────
+redis_version: "8"
+
+## ─── Network ───────────────────────────────────────────────────
+## Use 0.0.0.0 to listen on all interfaces
+## Access controlled by firewall + password
+redis_bind: "0.0.0.0"
+redis_port: 6379
+redis_protected_mode: "no"
+
+## ─── Security ──────────────────────────────────────────────────
+redis_password: "changeme"
+
+## ─── Storage ───────────────────────────────────────────────────
+redis_data_path: "/var/lib/redis"
+redis_log_file: "/var/log/redis/redis-server.log"
+
+## ─── Memory ────────────────────────────────────────────────────
+redis_maxmemory: "512mb"
+redis_maxmemory_policy: "allkeys-lru"
+
+## ─── Persistence ───────────────────────────────────────────────
+redis_save:
+  - "900 1"
+  - "300 10"
+  - "60 10000"
+redis_appendonly: "no"

@@ -1,0 +1,55 @@
+---
+- name: Create systemd override directory for redis
+  file:
+    path: /etc/systemd/system/redis-server.service.d
+    state: directory
+    mode: "0755"
+
+- name: Create systemd override for redis timeout
+  copy:
+    content: |
+      [Service]
+      TimeoutStartSec=60
+    dest: /etc/systemd/system/redis-server.service.d/timeout.conf
+    mode: "0644"
+  notify: restart redis
+
+- name: Deploy Redis config
+  template:
+    src: redis.conf.j2
+    dest: /etc/redis/redis.conf
+    owner: redis
+    group: redis
+    mode: "0640"
+  notify: restart redis
+
+- name: Reload systemd daemon
+  systemd:
+    daemon_reload: yes
+
+- name: Enable and start Redis service
+  systemd:
+    name: redis-server
+    state: started
+    enabled: yes
+
+- name: Wait for Redis to be ready
+  wait_for:
+    port: "{{ redis_port }}"
+    delay: 5
+    timeout: 60
+    msg: "Redis did not start in time"
+
+- name: Verify Redis is running
+  command: redis-cli -a {{ redis_password }} ping
+  register: redis_check
+  changed_when: false
+  no_log: true
+  retries: 3
+  delay: 5
+  until: redis_check.rc == 0
+
+- name: Print Redis status
+  debug:
+    msg: "Redis is running successfully on {{ inventory_hostname }}"
+  when: redis_check.rc == 0

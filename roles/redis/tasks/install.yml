@@ -1,0 +1,50 @@
+---
+- name: Install dependencies
+  apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg
+    state: present
+    update_cache: yes
+
+- name: Add Redis GPG key
+  apt_key:
+    url: https://packages.redis.io/gpg
+    state: present
+
+- name: Add Redis repository
+  apt_repository:
+    repo: "deb https://packages.redis.io/deb {{ ansible_distribution_release }} main"
+    state: present
+    filename: redis
+
+- name: Install Redis
+  apt:
+    name: "redis"
+    state: present
+    update_cache: yes
+
+- name: Ensure Redis data directory exists
+  file:
+    path: "{{ redis_data_path }}"
+    state: directory
+    owner: redis
+    group: redis
+    mode: "0755"
+
+- name: Ensure Redis log directory exists
+  file:
+    path: "/var/log/redis"
+    state: directory
+    owner: redis
+    group: redis
+    mode: "0755"
+
+- name: Enable memory overcommit for Redis
+  sysctl:
+    name: vm.overcommit_memory
+    value: "1"
+    state: present
+    reload: yes

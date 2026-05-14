@@ -1,0 +1,70 @@
+---
+- name: Rollback Redis Installation
+  hosts: redis
+  become: true
+  vars:
+    redis_data_path: "/var/lib/redis"
+
+  tasks:
+    - name: Stop Redis service
+      systemd:
+        name: redis-server
+        state: stopped
+        enabled: no
+      ignore_errors: yes
+
+    - name: Remove Redis packages
+      apt:
+        name:
+          - redis
+          - redis-server
+          - redis-tools
+        state: absent
+        purge: yes
+
+    - name: Remove Redis repository
+      apt_repository:
+        repo: "deb https://packages.redis.io/deb {{ ansible_distribution_release }} main"
+        state: absent
+        filename: redis
+
+    - name: Remove Redis GPG key
+      apt_key:
+        url: https://packages.redis.io/gpg
+        state: absent
+      ignore_errors: yes
+
+    - name: Remove Redis data directory
+      file:
+        path: "{{ redis_data_path }}"
+        state: absent
+
+    - name: Remove Redis log directory
+      file:
+        path: "/var/log/redis"
+        state: absent
+
+    - name: Remove Redis config directory
+      file:
+        path: /etc/redis
+        state: absent
+
+    - name: Reload systemd daemon
+      systemd:
+        daemon_reload: yes
+
+    - name: Reset failed service state
+      command: systemctl reset-failed redis-server.service
+      ignore_errors: yes
+
+    - name: Autoremove unused packages
+      apt:
+        autoremove: yes
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Rollback complete
+      debug:
+        msg: "Redis successfully removed from {{ inventory_hostname }}"
