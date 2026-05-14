@@ -10,8 +10,8 @@ Production-grade infrastructure installation using Ansible for bare metal server
 |-------------|-------------|---------|------------|------------|----------|
 | ClickHouse  | ✅          | ✅      | ✅         | ✅         | Ready    |
 | Kafka       | ✅          | ✅      | ✅         | ✅         | Ready    |
-| PostgreSQL  | ✅          | ❌      | ✅         | ✅         | Soon     |
-| Redis       | ✅          | ❌      | ✅         | ✅         | Soon     |
+| PostgreSQL  | ✅          | ❌      | ✅         | ✅         | Ready    |
+| Redis       | ✅          | ❌      | ✅         | ✅         | Ready    |
 
 ---
 
@@ -134,5 +134,7 @@ docker compose --profile all up -d
 
 - [ClickHouse Role](roles/clickhouse/README.md)
 - [Kafka Role](roles/kafka/README.md)
+- [PostgreSQL Role](roles/postgresql/README.md)
+- [Redis Role](roles/redis/README.md)
 
 
