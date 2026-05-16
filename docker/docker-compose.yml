@@ -1,0 +1,101 @@
+services:
+
+  ## ─── ClickHouse ──────────────────────────────────────────────
+  clickhouse:
+    image: clickhouse/clickhouse-server:${CLICKHOUSE_VERSION:-26.4.2.10}
+    container_name: clickhouse
+    profiles: ["clickhouse", "all"]
+    ports:
+      - "${CLICKHOUSE_HTTP_PORT:-8123}:8123"
+      - "${CLICKHOUSE_TCP_PORT:-9000}:9000"
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+      - clickhouse_logs:/var/log/clickhouse-server
+      - ./clickhouse/clickhouse-config.xml:/etc/clickhouse-server/config.d/config.xml
+      - ./clickhouse/clickhouse-users.xml:/etc/clickhouse-server/users.d/users.xml
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    healthcheck:
+      test: ["CMD", "clickhouse-client", "--query", "SELECT 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  ## ─── Kafka ───────────────────────────────────────────────────
+  kafka:
+    image: apache/kafka:${KAFKA_VERSION:-4.2.0}
+    container_name: kafka
+    profiles: ["kafka", "all"]
+    ports:
+      - "${KAFKA_PORT:-9092}:9092"
+      - "${KAFKA_CONTROLLER_PORT:-9093}:9093"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_HEAP_OPTS: "-Xmx${KAFKA_HEAP_SIZE:-512M} -Xms${KAFKA_HEAP_SIZE:-512M}"
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    healthcheck:
+      test: ["CMD", "/opt/kafka/bin/kafka-broker-api-versions.sh", "--bootstrap-server", "localhost:9092"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+
+  ## ─── PostgreSQL ──────────────────────────────────────────────
+  postgresql:
+    image: postgres:${POSTGRESQL_VERSION:-16}
+    container_name: postgresql
+    profiles: ["postgresql", "all"]
+    ports:
+      - "${POSTGRESQL_PORT:-5432}:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRESQL_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRESQL_PASSWORD:-changeme}
+      POSTGRES_DB: ${POSTGRESQL_DB:-postgres}
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data
+      - ./postgresql/postgresql.conf:/etc/postgresql/postgresql.conf
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRESQL_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  ## ─── Redis ───────────────────────────────────────────────────
+  redis:
+    image: redis:${REDIS_VERSION:-8}
+    container_name: redis
+    profiles: ["redis", "all"]
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    command: redis-server /etc/redis/redis.conf
+    volumes:
+      - redis_data:/data
+      - ./redis/redis.conf:/etc/redis/redis.conf
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-changeme}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  clickhouse_data:
+  clickhouse_logs:
+  kafka_data:
+  postgresql_data:
+  redis_data:
