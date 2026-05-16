@@ -1,0 +1,12 @@
+---
+- name: Rollback ClickHouse
+  import_playbook: rollback_clickhouse.yml
+
+- name: Rollback Kafka
+  import_playbook: rollback_kafka.yml
+
+- name: Rollback PostgreSQL
+  import_playbook: rollback_postgresql.yml
+
+- name: Rollback Redis
+  import_playbook: rollback_redis.yml

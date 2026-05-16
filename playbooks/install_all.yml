@@ -1,0 +1,28 @@
+---
+- name: Install ClickHouse
+  hosts: clickhouse
+  become: true
+  roles:
+    - clickhouse
+  when: install_clickhouse | default(true) | bool
+
+- name: Install Kafka
+  hosts: kafka
+  become: true
+  roles:
+    - kafka
+  when: install_kafka | default(true) | bool
+
+- name: Install PostgreSQL
+  hosts: postgresql
+  become: true
+  roles:
+    - postgresql
+  when: install_postgresql | default(true) | bool
+
+- name: Install Redis
+  hosts: redis
+  become: true
+  roles:
+    - redis
+  when: install_redis | default(true) | bool
