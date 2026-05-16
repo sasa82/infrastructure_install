@@ -32,6 +32,18 @@
             <quota>default</quota>
             <access_management>1</access_management>
         </admin>
+
+        <monitoring>
+            <password></password>
+            <networks>
+                <ip>::1</ip>
+                <ip>127.0.0.1</ip>
+                <ip>172.0.0.0/8</ip>
+            </networks>
+            <profile>readonly</profile>
+            <quota>default</quota>
+            <access_management>0</access_management>
+        </monitoring>
     </users>
 
     <quotas>

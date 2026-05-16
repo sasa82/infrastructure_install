@@ -33,6 +33,20 @@
             <quota>default</quota>
             <access_management>1</access_management>
         </{{ clickhouse_admin_user }}>
+
+        <monitoring>
+            <password></password>
+            <networks>
+                <ip>::1</ip>
+                <ip>127.0.0.1</ip>
+                <ip>172.0.0.0/8</ip>
+                <ip>10.0.0.0/8</ip>
+                <ip>192.168.0.0/16</ip>
+            </networks>
+            <profile>readonly</profile>
+            <quota>default</quota>
+            <access_management>0</access_management>
+        </monitoring>
     </users>
 
     <quotas>
