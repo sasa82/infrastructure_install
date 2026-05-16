@@ -136,5 +136,6 @@ docker compose --profile all up -d
 - [Kafka Role](roles/kafka/README.md)
 - [PostgreSQL Role](roles/postgresql/README.md)
 - [Redis Role](roles/redis/README.md)
+- [Docker Development Environment](docker/README.md)
 
 
