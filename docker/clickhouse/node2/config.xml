@@ -72,5 +72,47 @@
 
     <interserver_http_port>9009</interserver_http_port>
     <interserver_http_host>ch-node2</interserver_http_host>
+    <!-- Reduce system table bloat -->
+<asynchronous_metric_log>
+    <ttl>toIntervalDay(3)</ttl>
+    <flush_interval_milliseconds>60000</flush_interval_milliseconds>
+</asynchronous_metric_log>
+
+<trace_log>
+    <ttl>toIntervalDay(1)</ttl>
+    <flush_interval_milliseconds>60000</flush_interval_milliseconds>
+</trace_log>
+
+<processors_profile_log>
+    <ttl>toIntervalDay(1)</ttl>
+    <flush_interval_milliseconds>60000</flush_interval_milliseconds>
+</processors_profile_log>
+
+<part_log>
+    <ttl>toIntervalDay(3)</ttl>
+    <flush_interval_milliseconds>60000</flush_interval_milliseconds>
+</part_log>
+
+<histogram_metric_log>
+    <ttl>toIntervalDay(3)</ttl>
+    <flush_interval_milliseconds>60000</flush_interval_milliseconds>
+</histogram_metric_log>
+
+<metric_log>
+    <ttl>toIntervalDay(7)</ttl>
+    <flush_interval_milliseconds>60000</flush_interval_milliseconds>
+</metric_log>
+
+<query_log>
+    <ttl>toIntervalDay(7)</ttl>
+    <flush_interval_milliseconds>60000</flush_interval_milliseconds>
+</query_log>
+
+<text_log>
+    <ttl>toIntervalDay(3)</ttl>
+    <flush_interval_milliseconds>60000</flush_interval_milliseconds>
+    <level>warning</level>
+</text_log>
+
 </clickhouse>
 
